@@ -1,10 +1,3 @@
-from operon.sklearn import SymbolicRegressor
-import optuna
-import pandas as pd
-import numpy as np
-import os
-import operon
-   
 from math import e, exp, sqrt, pi, sin, cos, tanh, tanh, sqrt, exp, pi, log
 import os
 import numpy as np
@@ -309,92 +302,101 @@ def feynmann98(m, q, h, n, epsilon):
 
 def feynmann99(rho_c_0, q, A_vec, m):
     return -rho_c_0*q*A_vec/m
-     
-print("Número de hilos: ", os.environ['OMP_NUM_THREADS'] if 'OMP_NUM_THREADS' in os.environ else 1)
-num_threads = int(os.environ['OMP_NUM_THREADS']) if 'OMP_NUM_THREADS' in os.environ else 1
-rng = np.random.default_rng(1234)
-default_params = {
-        'allowed_symbols':"add,sub,mul,div,constant,variable,sin,cos",
-        'offspring_generator': 'basic',
-        'initialization_method': 'btc',
-        'n_threads': 8,
-        'objectives':  ['r2', 'length'],
-        'epsilon': 1e-5,
-        'random_state': rng,
-        'reinserter': 'keep-best',
-        'max_evaluations': int(1e6),
-        'tournament_size': 3,
-        'pool_size': None,
-        'time_limit': 600
-        }
+
+def vladislavleva1(x0, x1):
+    return (exp((-x0 - 1)**2)) / (1.2 + (x1 - 2.5)**2)
+
+def vladislavleva2(x1):
+    return (exp(-x1)) * x1**3 * cos(x1) * sin(x1) * (cos(x1) * (sin(x1)**2) - 1)
+
+def vladislavleva3(x1, x2):
+    return (exp(-x1)) * x1**3 * cos(x1) * sin(x1) * (cos(x1) * (sin(x1)**2) - 1) * (x2 - 5)
+
+def vladislavleva4(x1, x2, x3, x4, x5):
+    return 10 / (5 + (x1 - 3)**2 + (x2 - 3)**2 + (x3 - 3)**2 + (x4 - 3)**2 + (x5 - 3)**2)
+
+def vladislavleva5(x1, x2, x3):
+    return 30 * ((x1 - 1) * (x3 - 1) / (x2**2 * (x1 - 10)))
+
+def vladislavleva6(x1, x2):
+    return 6 * sin(x1) * cos(x2)
+
+def vladislavleva7(x1, x2):
+    return (x1 - 3) * (x2 - 3) + 2 * sin((x1 - 4) * (x2 - 4))
 
 
-def predecir_desde_csv(est, df, nombre):
-    # Leer el archivo csv
-    # 30 iteraciones
-    
-    X = df.iloc[:, :-1].values
-    y = df.iloc[:, -1].values
-    print(X.shape, y.shape)
-    for i in range(30):
-        est = est.fit(X, y)
-    m = est.model_
-    #print("***************************")
-    #print("Original: " + nombre)
-    #print("Modelo: " + str(m))
-    #print("***************************")
-    return est, m
 
-def main():
-    print("****************************")
-    print("* Operon desde archivo csv *")
-    print("****************************")
-    
-    predicciones = []
-    # Leer los archivos csv, en el directorio Feynman
-    # para cada archivo CSV, predecir y guardar el modelo
-    # Luego, comparar los modelos obtenidos con los modelos reales
-    for file in os.listdir("Feynman"):
-        if file.endswith(".csv"):
-            df = pd.read_csv(os.path.join("Feynman", file))
-            est = SymbolicRegressor(**default_params)
-            est, m = predecir_desde_csv(est, df, file)
-            predicciones.append(est)
-    print("***************************")
-    lista_funciones = [feynmann0, feynmann1, feynmann2, feynmann3, feynmann4, feynmann5, feynmann6, feynmann7, feynmann8,
-                       feynmann9, feynmann10, feynmann11, feynmann12, feynmann13, feynmann14, feynmann15, feynmann16,
-                       feynmann17, feynmann18, feynmann19, feynmann20, feynmann21, feynmann22, feynmann23, feynmann24,
-                       feynmann25, feynmann26, feynmann27, feynmann28, feynmann29, feynmann30, feynmann31, feynmann32,
-                       feynmann33, feynmann34, feynmann35, feynmann36, feynmann37, feynmann38, feynmann39, feynmann40,
-                       feynmann41, feynmann42, feynmann43, feynmann44, feynmann45, feynmann46, feynmann47, feynmann48,
-                       feynmann49, feynmann50, feynmann51, feynmann52, feynmann53, feynmann54, feynmann55, feynmann56,
-                       feynmann57, feynmann58, feynmann59, feynmann60, feynmann61, feynmann62, feynmann63, feynmann64,
-                       feynmann65, feynmann66, feynmann67, feynmann68, feynmann69, feynmann70, feynmann71, feynmann72,
-                       feynmann73, feynmann74, feynmann75, feynmann76, feynmann77, feynmann78, feynmann79, feynmann80,
-                       feynmann81, feynmann82, feynmann83, feynmann84, feynmann85, feynmann86, feynmann87, feynmann88,
-                       feynmann89, feynmann90, feynmann91, feynmann92, feynmann93, feynmann94, feynmann95, feynmann96,
-                       feynmann97, feynmann98, feynmann99]
-    # Comparar los modelos obtenidos con los modelos reales
-    for i, f in enumerate(lista_funciones):
-        print("***************************")
-        print("Original: " + f.__name__)
-        print("Modelo: ")
-        print(predicciones[i].get_model_string())
-        print("***************************")
-        
-        
-    print("***************************")
-    
+def generar_datos(low, high, num_points=100):
+    return np.random.uniform(low, high, num_points)
+
+# Leer el archivo CSV
+df = pd.read_csv('FeynmanEquations.csv')
+
+# Lista de funciones ya definidas
+lista_funciones = [
+    feynmann0, feynmann1, feynmann2, feynmann3, feynmann4, feynmann5, feynmann6, feynmann7, feynmann8,
+    feynmann9, feynmann10, feynmann11, feynmann12, feynmann13, feynmann14, feynmann15, feynmann16, 
+    feynmann17, feynmann18, feynmann19, feynmann20, feynmann21, feynmann22, feynmann23, feynmann24,
+    feynmann25, feynmann26, feynmann27, feynmann28, feynmann29, feynmann30, feynmann31, feynmann32, 
+    feynmann33, feynmann34, feynmann35, feynmann36, feynmann37, feynmann38, feynmann39, feynmann40, 
+    feynmann41, feynmann42, feynmann43, feynmann44, feynmann45, feynmann46, feynmann47, feynmann48, 
+    feynmann49, feynmann50, feynmann51, feynmann52, feynmann53, feynmann54, feynmann55, feynmann56, 
+    feynmann57, feynmann58, feynmann59, feynmann60, feynmann61, feynmann62, feynmann63, feynmann64, 
+    feynmann65, feynmann66, feynmann67, feynmann68, feynmann69, feynmann70, feynmann71, feynmann72, 
+    feynmann73, feynmann74, feynmann75, feynmann76, feynmann77, feynmann78, feynmann79, feynmann80, 
+    feynmann81, feynmann82, feynmann83, feynmann84, feynmann85, feynmann86, feynmann87, feynmann88, 
+    feynmann89, feynmann90, feynmann91, feynmann92, feynmann93, feynmann94, feynmann95, feynmann96, 
+    feynmann97, feynmann98, feynmann99]
 
 
-if __name__ == '__main__':
-    #capturar la salida estandar y ponerla en un txt salida.txt
+
+import pandas as pd
+import numpy as np
+import inspect
+
+# Número de vectores de puntos M
+M = 2025 # 100
+
+
+##################################
+####### FEYNMAN EQUATIONS ########
+##################################
+os.makedirs('Feynman', exist_ok=True)
+os.chdir('Feynman')
+
+for index, row in df.iterrows():
     
-    
-    # comenzar a capturar la salida estandar
-    ##import sys
-    #sys.stdout = open('salida.txt', 'w')
-    main()
-    # terminar de capturar la salida estandar
-    #sys.stdout.close()
-  
+    # comparar el index de la fila con el de la funcion en listafunciones
+    # print(f'Index: {index}')
+    # print(f'Nombre de la función: {lista_funciones[index].__name__}')
+    # Generar los valores de las variables
+    variables = []
+    resultado = []
+    for i in range(1, 11):
+        v_low = row[f'v{i}_low']
+        v_high = row[f'v{i}_high']
+        # si son NaN, ya no hay más variables, break
+        if pd.isna(v_low) or pd.isna(v_high):
+            break
+        variables.append(np.random.uniform(v_low, v_high, M))
+    # imprimir el shape de variables
+    # print(f'Variables: {variables}')
+    # #imprimir tipo
+    # print(f'Tipo de variables: {type(variables)}')
+    # print(f'Shape de variables: {np.array(variables).shape}')
+    # Evaluar la función en los M puntos generados
+    for i in range(M):
+        # Evaluar la función en los valores de las variables
+        resultado.append(lista_funciones[index](*[v[i] for v in variables]))
+    #Armar un dataFrame que tenga variables y resultado y guardarlo en un archivo CSV que se llame feynman{index}.csv
+    df_resultado = pd.DataFrame({f'v{i}': variables[i] for i in range(len(variables))})
+    df_resultado['resultado'] = resultado
+    # obtener el codigo de la funcion
+    df_resultado.to_csv(f'feynman{index}.csv', index=False)
+    # print(f'Archivo feynman{index}.csv guardado')
+    # print(f'Contenido del archivo:')
+    # print(df_resultado.head())
+os.chdir('..')
+print(f'Iteración {j} Feynman terminada...')
+
+os.chdir('..')

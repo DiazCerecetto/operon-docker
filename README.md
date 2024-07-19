@@ -27,3 +27,6 @@ Luego, en la terminal de docker:
 
     Correr el archivo de python con el hola mundo
     7. python operon_from_csv.py
+
+## Una vez instalado, solo necesitamos levantar el container
+
