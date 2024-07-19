@@ -1,9 +1,10 @@
 
+import inspect
 from math import e, exp, sqrt, pi, sin, cos, tanh, tanh, sqrt, exp, pi, log
-
 import numpy as np
 
-
+# Este archivo contiene las funciones de las ecuaciones de Feynman
+# Las mismas se obtuvieron mediante una recorrida por el csv generado por feynman_generate.py
 def feynman0(theta):
     return exp(-theta**2/2)/sqrt(2*pi)
 
@@ -145,6 +146,7 @@ def feynman45(mob, T, kb):
 def feynman46(gamma, kb, A, v):
     return 1/(gamma-1)*kb*v/A
 
+# Se cambia ln por log
 def feynman47(n, kb, T, V1, V2):
     return n*kb*T*log(V2/V1,e)
 
@@ -325,3 +327,31 @@ lista_funciones = [feynman0, feynman1, feynman10, feynman11, feynman12, feynman1
                     feynman90, feynman91, feynman92, feynman93, feynman94, feynman95, 
                     feynman96, feynman97, feynman98, feynman99
                 ]
+
+# Ordenar la lista de funciones en orden normal para que la función de generación de datos
+# pueda acceder a ellas por índice mientras recorre el dataframe obteniendo los intervalos
+
+lista_funciones_normal = [feynman0, feynman1, feynman2, feynman3, feynman4, feynman5,
+                            feynman6, feynman7, feynman8, feynman9, feynman10, feynman11,
+                            feynman12, feynman13, feynman14, feynman15, feynman16, feynman17,
+                            feynman18, feynman19, feynman20, feynman21, feynman22, feynman23,
+                            feynman24, feynman25, feynman26, feynman27, feynman28, feynman29,
+                            feynman30, feynman31, feynman32, feynman33, feynman34, feynman35,
+                            feynman36, feynman37, feynman38, feynman39, feynman40, feynman41,
+                            feynman42, feynman43, feynman44, feynman45, feynman46, feynman47,
+                            feynman48, feynman49, feynman50, feynman51, feynman52, feynman53,
+                            feynman54, feynman55, feynman56, feynman57, feynman58, feynman59,
+                            feynman60, feynman61, feynman62, feynman63, feynman64, feynman65,
+                            feynman66, feynman67, feynman68, feynman69, feynman70, feynman71,
+                            feynman72, feynman73, feynman74, feynman75, feynman76, feynman77,
+                            feynman78, feynman79, feynman80, feynman81, feynman82, feynman83,
+                            feynman84, feynman85, feynman86, feynman87, feynman88, feynman89,
+                            feynman90, feynman91, feynman92, feynman93, feynman94, feynman95,
+                            feynman96, feynman97, feynman98, feynman99
+                        ]
+
+def obtener_funcion(f):
+    source = inspect.getsource(f)
+    funcion = source.split("return")[1]
+    funcion = funcion.strip()
+    return funcion

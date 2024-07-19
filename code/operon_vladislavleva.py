@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
-from SRutils import *
+from SRutils import entrenar_desde_csv, obtener_modelo, PATH_VLADISLAVLEVA
 
 
 def main():
     nombre_archivo = PATH_VLADISLAVLEVA + "/vladislavleva1.csv"
     df = pd.read_csv(nombre_archivo)
     est = obtener_modelo()
-    est, m = predecir_desde_csv(est, df, "vladislavleva1")
+    est, m = entrenar_desde_csv(est, df, "vladislavleva1")
     # Probar en el conjunto de test
     nombre_archivo = PATH_VLADISLAVLEVA + "/vladislavleva2.csv"
     df = pd.read_csv(nombre_archivo)

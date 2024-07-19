@@ -1,18 +1,21 @@
 # Archivo con funciones de utilidad 
 import os
 import numpy as np
+
 from operon.sklearn import SymbolicRegressor
 
-PATH_FEYNMAN = "Feynman"
+# Direcciones de los archivos
+PATH_FEYNMAN = "Feynman_train"
 PATH_FEYNMAN_TEST = "Feynman_test"
 PATH_VLADISLAVLEVA = "Vladislavleva"
-# salir de la carpeta code 
-os.chdir("..")
-# obtener el path actual
-PATH_BASE = os.getcwd()
-# volver a la carpeta code
-os.chdir("code")
+PATH_RESULTADOS = "Resultados"
 
+# Direcciones del proyecto
+PATH_CODE = os.path.dirname(os.path.abspath(__file__))
+PATH_BASE = os.path.dirname(PATH_CODE)
+
+# Direcciones completas
+PATH_RESULTADOS = os.path.join(PATH_BASE, PATH_RESULTADOS)
 PATH_FEYNMAN = os.path.join(PATH_BASE, PATH_FEYNMAN)
 PATH_FEYNMAN_TEST = os.path.join(PATH_BASE, PATH_FEYNMAN_TEST)
 PATH_VLADISLAVLEVA = os.path.join(PATH_BASE, PATH_VLADISLAVLEVA)
@@ -33,20 +36,14 @@ default_params = {
         'pool_size': None,
         'time_limit': 600
             }
-def predecir_desde_csv(est, df,nombre,iteraciones = 30):
-    # Leer el archivo csv
-    # 30 iteraciones
-    
+
+def entrenar_desde_csv(est, df,iteraciones = 30):
+    # Leer el archivo csv y entrenar el modelo    
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
-    print(X.shape, y.shape)
     for i in range(int(iteraciones)):
         est = est.fit(X, y)
     m = est.model_
-    #print("***************************")
-    #print("Original: " + nombre)
-    #print("Modelo: " + str(m))
-    #print("***************************")
     return est, m
 
 def obtener_modelo():
