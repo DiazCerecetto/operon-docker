@@ -13,7 +13,6 @@ os.chdir(PATH_CODE)
 
 df = pd.read_csv(os.path.join(PATH_CODE, 'FeynmanEquations.csv'))
 
-# Función para generar datos
 def generar_datos(low, high, num_points=100, seed=None):
     if seed is not None:
         np.random.seed(seed)
