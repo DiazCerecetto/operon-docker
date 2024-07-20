@@ -1,22 +1,13 @@
+
+import sys
 import pandas as pd
 import numpy as np
-from SRutils import entrenar_desde_csv, obtener_modelo, PATH_VLADISLAVLEVA
+import os
+from SRutils import entrenar_evaluar_modelo, PATH_VLADISLAVLEVA, PATH_VLADISLAVLEVA_TEST, PATH_RESULTADOS_VLADISLAVLEVA
+from vladislavleva_functions import lista_funciones
 
 
-def main():
-    nombre_archivo = PATH_VLADISLAVLEVA + "/vladislavleva1.csv"
-    df = pd.read_csv(nombre_archivo)
-    est = obtener_modelo()
-    est, m = entrenar_desde_csv(est, df, "vladislavleva1")
-    # Probar en el conjunto de test
-    nombre_archivo = PATH_VLADISLAVLEVA + "/vladislavleva2.csv"
-    df = pd.read_csv(nombre_archivo)
-    X = df.iloc[:, :-1].values
-    y = df.iloc[:, -1].values
-    r2 = est.score(X, y)
-    print(X.shape, y.shape)
-    print("R2: ", r2)
-    print("Modelo: ", est.get_model_string())
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
+    entrenar_evaluar_modelo(iteraciones,PATH_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TEST,PATH_RESULTADOS_VLADISLAVLEVA,lista_funciones,"vladislavleva")

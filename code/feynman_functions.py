@@ -349,9 +349,3 @@ lista_funciones_normal = [feynman0, feynman1, feynman2, feynman3, feynman4, feyn
                             feynman90, feynman91, feynman92, feynman93, feynman94, feynman95,
                             feynman96, feynman97, feynman98, feynman99
                         ]
-
-def obtener_funcion(f):
-    source = inspect.getsource(f)
-    funcion = source.split("return")[1]
-    funcion = funcion.strip()
-    return funcion

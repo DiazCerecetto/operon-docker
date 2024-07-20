@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from feynman_functions import lista_funciones_normal
 
+# Para garantizar reproducibilidad
 SEED_TRAIN = 1234
 SEED_TEST = 5678
 # Obtener el path de este archivo
@@ -18,8 +19,8 @@ def generar_datos(low, high, num_points=100, seed=None):
         np.random.seed(seed)
     return np.random.uniform(low, high, num_points)
 
-######################################################################################################
-
+########################################################################################################
+#                                                                                                      #
 # generar_ecuaciones_feynman(cantidad, nombre_directorio,seed)
 # 1. Genera los valores de las variables y los guarda en una lista, estos valores
 #    son generados de manera aleatoria entre los valores mínimos y máximos de las variables indicadas
@@ -30,7 +31,7 @@ def generar_datos(low, high, num_points=100, seed=None):
 # 3. Arma un dataFrame que tenga variables y resultado y
 #    guarda el dataFrame en un archivo CSV que se llame feynman{index}.csv en un directorio llamado
 #    Feynman_{nombre_directorio}, si el directorio no existe, lo crea
-
+#
 ######################################################################################################
 def generar_ecuaciones_feynman(cantidad, nombre_directorio,seed):
     
