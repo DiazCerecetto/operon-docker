@@ -7,12 +7,19 @@
     docker build -t operon .
 ```
 
+### 1. Imágen de Docker Hub
+También es posible descargar la imágen desde Docker Hub, mediante el siguiente comando
+
+```
+    docker pull diazcerecetto/operon-docker
+```
+
 ### 2. Ejecutar con el volumen apropiado para tener los archivos más cómodamente para programar
 Cambiar "ruta" por el path directorio local, la siguiente línea debería imprimir el directorio local (powershell)
 
 ```
     echo $(pwd)
-    docker run -v C:\repos\operon:/home/app -it operon /bin/bash
+    docker run -v <ruta_al_directorio_local>/home/app -it operon-docker /bin/bash
 ```
 
 ### 3. Luego, en la terminal de docker:
@@ -54,3 +61,11 @@ Luego, se puede replicar el experimento mediante el siguiente comando, este soli
     python code/operon_feynman.py 
 ```
 Finalmente, los resultados se encuentran en el directorio Resultados/resultados_feynman.csv
+
+
+## Bibliografía
+El archivo install.sh fue extraído de:
+https://github.com/cavalab/srbench
+
+Código de pyoperon disponible en:
+https://github.com/heal-research/pyoperon
