@@ -15,7 +15,7 @@ También es posible descargar la imágen desde Docker Hub, mediante el siguiente
 ```
 
 ### 2. Ejecutar con el volumen apropiado para tener los archivos más cómodamente para programar
-Cambiar "ruta" por el path directorio local, la siguiente línea debería imprimir el directorio local (powershell)
+Cambiar "ruta_al_directorio_local" por el path directorio local, la siguiente línea debería imprimir el directorio local (powershell)
 
 ```
     echo $(pwd)
@@ -30,7 +30,7 @@ Activar el environment de conda
     conda activate operon
 ```
 
-Instalar operon (demora aprox 30-50 minutos)
+Instalar operon (demora aprox 30-50 minutos). NOTA: Este paso y el siguiente no son necesarios si se instaló la imágen mediante docker pull
 
 ```
     bash install.sh
