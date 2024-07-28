@@ -67,7 +67,7 @@ def obtener_modelo(i):
         'pool_size': None,
         'time_limit': 600,
         'local_iterations': 30
-            }
+        }
     return SymbolicRegressor(**default_params)
     
 def obtener_funcion(f):
