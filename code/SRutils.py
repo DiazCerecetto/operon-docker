@@ -54,7 +54,7 @@ def entrenar_desde_csv(est, df):
 
 def obtener_modelo(i):
     default_params = {
-        'allowed_symbols':"add,sub,mul,div,square,variable,sin,cos,exp", # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos
+        'allowed_symbols':"add,sub,mul,div,square,variable,sin,cos,exp", # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos 
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
         'n_threads': 8,
@@ -117,6 +117,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             y = df.iloc[:, -1].values
 
             if np.isnan(X).any() or np.isnan(y).any():
+                print("Valores NaN en el archivo ", nombre_csv)
                 continue
             y_pred = predicciones[j].predict(X)
             
@@ -127,14 +128,19 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
                 print()
                 df_salida.loc[j] = [obtener_funcion(f), 0, predicciones[j].get_model_string(), np.nan]
                 continue
-
-            r2 = predicciones[j].score(X, y)
+        
+            r2 = 0
+            try:
+                r2 = predicciones[j].score(X, y)
+            except:
+                r2 = np.nan
+    
             rmse = calcular_rmse(y, y_pred)
             df_salida.loc[j] = [obtener_funcion(f), r2, simplify_expression(predicciones[j].get_model_string()), rmse]
 
-        
-        df_salida.to_csv(resultados, index=False)
-    tiempo_total = time.time() - tiempo_inicio
+            
+            df_salida.to_csv(resultados, index=False)
+            tiempo_total = time.time() - tiempo_inicio
     return tiempo_total, tiempos_iteraciones
 
 
