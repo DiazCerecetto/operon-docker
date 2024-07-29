@@ -54,7 +54,7 @@ def entrenar_desde_csv(est, df):
 
 def obtener_modelo(i):
     default_params = {
-        'allowed_symbols':"add,sub,mul,div,constant,variable,sin,cos,exp,log",
+        'allowed_symbols':"add,sub,mul,div,square,variable,sin,cos,exp", # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
         'n_threads': 8,
