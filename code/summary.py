@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+from generate_summary import combine_csv_files
+
 def summary(carpeta_archivos):
     # Diccionarios para almacenar los datos
     r2_mejores = {}
@@ -33,3 +35,4 @@ def summary(carpeta_archivos):
 if __name__ == '__main__':
     PATH_ARCHIVOS = "Resultados_Vladislavleva"
     summary(PATH_ARCHIVOS)
+    combine_csv_files(PATH_ARCHIVOS)
