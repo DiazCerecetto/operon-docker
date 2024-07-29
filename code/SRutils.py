@@ -57,7 +57,7 @@ def obtener_modelo(i):
         'allowed_symbols':"add,sub,mul,div,square,variable,sin,cos,exp", # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos 
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
-        'n_threads': 8,
+        'n_threads': 5,
         'objectives':  ['r2'],
         'epsilon': 1e-5,
         'random_state' : np.random.default_rng(i),
@@ -66,7 +66,10 @@ def obtener_modelo(i):
         'tournament_size': 3,
         'pool_size': None,
         'time_limit': 600,
-        'local_iterations': 30
+        'local_iterations': 30,
+        'max_length': 13,
+        'max_depth': 5,
+        'generations': 5000
         }
     return SymbolicRegressor(**default_params)
     
@@ -120,13 +123,17 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
                 print("Valores NaN en el archivo ", nombre_csv)
                 continue
             y_pred = predicciones[j].predict(X)
+            #print("y_pred: ", y_pred)
+            #print("expr: ", simplify_expression(predicciones[j].get_model_string()))
+            #print("\n")
             
 
             # Si hay valores NaN en las predicciones, se descarta
             if np.isnan(y_pred).any():
-                print("Predicciones con valores NaN en la iteración ", iter+1, " y función ", obtener_funcion(f))
-                print()
+                print("Habia nans")
                 df_salida.loc[j] = [obtener_funcion(f), 0, predicciones[j].get_model_string(), np.nan]
+                df_salida.to_csv(resultados, index=False)
+                tiempo_total = time.time() - tiempo_inicio
                 continue
         
             r2 = 0
