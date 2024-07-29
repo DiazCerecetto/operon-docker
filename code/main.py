@@ -75,6 +75,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
                 df = pd.read_csv(os.path.join(path_train, file))
                 est = obtener_modelo(iter)
                 est, m = entrenar_desde_csv(est, df)
+                
                 predicciones.append(est)
 
                 sys.stdout.write("\033[F")
@@ -91,11 +92,15 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             df = pd.read_csv(os.path.join(path_test, nombre_csv))
             X = df.iloc[:, :-1].values
             y = df.iloc[:, -1].values
-
+            
             if np.isnan(X).any() or np.isnan(y).any():
                 print("Valores NaN en el archivo ", nombre_csv)
                 continue
             y_pred = predicciones[j].predict(X)
+            #print type
+            
+            rmse = calcular_rmse(y, y_pred)
+
             #print("y_pred: ", y_pred)
             #print("expr: ", simplify_expression(predicciones[j].get_model_string()))
             #print("\n")
@@ -115,7 +120,6 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             except:
                 r2 = np.nan
     
-            rmse = calcular_rmse(y, y_pred)
             df_salida.loc[j] = [obtener_funcion(f), r2, simplify_expression(predicciones[j].get_model_string()), rmse]
 
             
@@ -125,9 +129,12 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
 
 
 def calcular_rmse(y_true, y_pred):
-    # pasar a numpy array
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+    # Convertir a ndarray y aplicar redondeo a 4 decimales
+    y_true = np.array(y_true).flatten()
+    y_pred = np.array(y_pred).flatten()
+    y_true = np.round(y_true, 4)
+    y_pred = np.round(y_pred, 4)
+    
     return np.sqrt(np.mean((y_true - y_pred)**2))
 
 
