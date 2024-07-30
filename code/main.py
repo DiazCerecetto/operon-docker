@@ -32,15 +32,15 @@ def obtener_modelo(i):
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
         'n_threads': 5,
-        'objectives':  ['r2'],
+        'objectives':  ['rmse'],
         'epsilon': 1e-5,
         'random_state' : np.random.default_rng(i),
         'reinserter': 'keep-best',
-        'max_evaluations': int(1e6),
+        'max_evaluations': int(1e6),   # 5000 generaciones * 1000 population size = 5M > 1M
         'tournament_size': 3,
         'pool_size': None,
         'time_limit': 600,
-        'local_iterations': 30,
+        #'local_iterations': 30,
         'max_length': 13,
         'max_depth': 5,
         'generations': 5000
