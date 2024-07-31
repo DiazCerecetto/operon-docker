@@ -36,7 +36,7 @@ def obtener_modelo(i):
         'epsilon': 1e-5,
         'random_state' : np.random.default_rng(i),
         'reinserter': 'keep-best',
-        'max_evaluations': int(1e6),   # 5000 generaciones * 1000 population size = 5M > 1M
+        'max_evaluations': int(5e6),   # 5000 generaciones * 1000 population size = 5M > 1M
         'tournament_size': 3,
         'pool_size': None,
         'time_limit': 600,
@@ -53,7 +53,7 @@ def obtener_funcion(f):
     funcion = funcion.strip()
     return funcion
 
-def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, lista_funciones, nombre):
+def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, lista_funciones, nombre, lista_admitidos=None):
     print("****************************")
     print(f"*** Operon {nombre} ***")
     print("****************************")
@@ -74,17 +74,34 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
         maximo = len(os.listdir(path_train))
         i = 0
         for file in os.listdir(path_train):
+            # Si el numero  + 1 que viene al final del archivo, justo antes de .csv
+            # está en la lista de admitidos, se carga el archivo
+            # ejemplo: resultados_feynmann_1.csv, resultados_feynmann_2.csv, resultados_Vladislavleva3.csv
+            # Solo se cargan los archivos que tengan un número en la lista de admitidos si es que esta no es None
+            # obtener el ultimo caracter:
             
-            if file.endswith(".csv"):
-                df = pd.read_csv(os.path.join(path_train, file))
-                est = obtener_modelo(iter)
-                est, m = entrenar_desde_csv(est, df)
-                
-                predicciones.append(est)
+            if lista_admitidos is not None:
+                if file.endswith(".csv") and int(file.split(".")[0][-1]) in lista_admitidos:
+                    print("Cargando archivo ", int(file.split(".")[0][-1]))
+                    df = pd.read_csv(os.path.join(path_train, file))
+                    est = obtener_modelo(iter)
+                    est, m = entrenar_desde_csv(est, df)
+                    
+                    predicciones.append(est)
+                    sys.stdout.write("\033[F")
+                    print("Iteración: ", str(iter+1), " de ", iteraciones, " || ", i+1, " de ", maximo, " funciones")
+                    i += 1
+            else:
+                if file.endswith(".csv"):
+                    df = pd.read_csv(os.path.join(path_train, file))
+                    est = obtener_modelo(iter)
+                    est, m = entrenar_desde_csv(est, df)
+                    
+                    predicciones.append(est)
 
-                sys.stdout.write("\033[F")
-                print("Iteración: ", str(iter+1), " de ", iteraciones, " || ", i+1, " de ", maximo, " funciones")
-                i += 1
+                    sys.stdout.write("\033[F")
+                    print("Iteración: ", str(iter+1), " de ", iteraciones, " || ", i+1, " de ", maximo, " funciones")
+                    i += 1
         tiempo_iteracion = time.time() - tiempo_iteracion
         tiempos_iteraciones.append(tiempo_iteracion)
         
@@ -222,7 +239,10 @@ def ferreira_train_test():
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     # Si la carpeta resultados no existe, crearla
     os.makedirs(PATH_RESULTADOS_FERREIRA, exist_ok=True)
-    entrenar_evaluar_modelo(iteraciones, PATH_FERREIRA_TRAIN, PATH_FERREIRA_TEST, PATH_RESULTADOS_FERREIRA, funciones_ferreira, "Ferreira")
+    # Crear una lista con los enteros de las funciones a cargar, si no se ingresa nada, se carga en None
+    lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
+    lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
+    entrenar_evaluar_modelo(iteraciones, PATH_FERREIRA_TRAIN, PATH_FERREIRA_TEST, PATH_RESULTADOS_FERREIRA, funciones_ferreira, "Ferreira",lista_admitidos)
     
 def feynman_train_test():
     # si el directorio de resultados no existe, lo creo
