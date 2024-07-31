@@ -49,19 +49,14 @@ Luego, ejecutar un archivo de python
 ```
 
 ## Réplica del experimento
-Primero se deben generar los puntos de las funciones de Feynman, para ello se debe ejecutar primero el siguiente comando, este preguntará cuantos elementos se necesitan en el conjunto de entrenamiento y test, se debe indicar un entero en cada caso.
+
+Se pueden ejecutar ambas fases desde el archivo principal 
 
 ```
-    python code/feynman_generate.py
+    python code/main.py
 ```
 
-Luego, se puede replicar el experimento mediante el siguiente comando, este solicitará el número de iteraciones a ejecutar.
-
-```
-    python code/operon_feynman.py 
-```
-Finalmente, los resultados se encuentran en el directorio Resultados/resultados_feynman.csv
-
+Cada ejecución del experimento creará una carpeta nueva con nombre único que contendrá los archivos con las predicciones y su evaluación.
 
 ## Bibliografía
 El archivo install.sh fue extraído de:
