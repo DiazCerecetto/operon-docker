@@ -59,7 +59,11 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
     print("****************************")
     print()
     
-        
+    # Crear una carpeta para los resultados dentro de la carpeta de resultados
+    # con el timestamp actual
+    path_resultados = os.path.join(path_resultados, str(int(time.time())))
+    os.makedirs(path_resultados, exist_ok=True)
+    
     tiempo_inicio = time.time()
     tiempos_iteraciones = []
     tiempo_total = 0
@@ -125,8 +129,8 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             
             df_salida.to_csv(resultados, index=False)
             tiempo_total = time.time() - tiempo_inicio
+    summary(path_resultados)
     return tiempo_total, tiempos_iteraciones
-
 
 def calcular_rmse(y_true, y_pred):
     # Convertir a ndarray y aplicar redondeo a 4 decimales
@@ -136,7 +140,6 @@ def calcular_rmse(y_true, y_pred):
     y_pred = np.round(y_pred, 4)
     
     return np.sqrt(np.mean((y_true - y_pred)**2))
-
 
 def python_to_latex(expression_str,nombre="imagen.png"):
     # si el nombre ya existe, agregar un número al final en orden
@@ -157,7 +160,6 @@ def python_to_latex(expression_str,nombre="imagen.png"):
 def simplify_expression(expression_str):
     expression = sympify(expression_str)
     return expression.simplify()
-
 
 def summary(carpeta_archivos):
     # Diccionarios para almacenar los datos
@@ -190,13 +192,36 @@ def summary(carpeta_archivos):
     df_mejores_rmse.to_csv(os.path.join(carpeta_archivos, 'summary_rmse.csv'), index=False)          
     print("Resumen guardado exitosamente en " + carpeta_archivos)
 
+# Para todos los archivos en la carpeta, combina los resultados en un solo archivo
+def combine_csv_files(folder_path,prefix):
+    
+
+    lista_ejecuciones = os.listdir(folder_path)
+    lista_ejecuciones = [x for x in lista_ejecuciones if x.startswith(f"resultados_{prefix}")]
+    data_frames = []
+    #Concatenar todos los dataframes y guardar el archivo
+    for i in range(len(lista_ejecuciones)):
+        file_name = f"resultados_{prefix}{i}.csv"
+        file_path = os.path.join(folder_path, file_name)
+        if os.path.exists(file_path):
+            df = pd.read_csv(file_path)
+            # Agregar la columna Iteración_independiente al dataframe
+            df['Iteración_independiente'] = i
+            data_frames.append(df)
+        else:
+            print(f"El archivo {file_name} no existe en la ruta {folder_path}")
+    
+            
+    # Concatenar todos los dataframes y guardar el archivo
+    summary_df = pd.concat(data_frames, ignore_index=True)
+    summary_file_path = os.path.join(folder_path, "concatenated.csv")
+    summary_df.to_csv(summary_file_path, index=False)
+    print(f"Archivo concatenated.csv creado en {folder_path}")
+
 def ferreira_train_test():
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     # Si la carpeta resultados no existe, crearla
     os.makedirs(PATH_RESULTADOS_FERREIRA, exist_ok=True)
-    # si la carpeta de resultados tiene archivos, eliminarlos
-    for file in os.listdir(PATH_RESULTADOS_FERREIRA):
-        os.remove(os.path.join(PATH_RESULTADOS_FERREIRA, file))
     entrenar_evaluar_modelo(iteraciones, PATH_FERREIRA_TRAIN, PATH_FERREIRA_TEST, PATH_RESULTADOS_FERREIRA, funciones_ferreira, "Ferreira")
     
 def feynman_train_test():
@@ -204,29 +229,24 @@ def feynman_train_test():
     if not os.path.exists(PATH_RESULTADOS_FEYNMAN):
         os.makedirs(PATH_RESULTADOS_FEYNMAN)
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
-    # Si la carpeta de resultados tiene archivos, eliminarlos
-    for file in os.listdir(PATH_RESULTADOS_FEYNMAN):
-        os.remove(os.path.join(PATH_RESULTADOS_FEYNMAN, file))
     # Medir el tiempo de ejecución
     tiempo_total, tiempos_iteraciones = entrenar_evaluar_modelo(iteraciones,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,PATH_RESULTADOS_FEYNMAN,funciones_feynman,"feynman")
     
     print(f"Tiempo total de ejecución: {tiempo_total}")
     print(f"Tiempo promedio de ejecución: {np.mean(tiempos_iteraciones)}")
     
+    
 def vladislavleva_train_test():
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     if not os.path.exists(PATH_RESULTADOS_VLADISLAVLEVA):
-        os.makedirs(PATH_RESULTADOS_VLADISLAVLEVA)
-    # Si la carpeta de resultados tiene archivos, eliminarlos
-    for file in os.listdir(PATH_RESULTADOS_VLADISLAVLEVA):
-        os.remove(os.path.join(PATH_RESULTADOS_VLADISLAVLEVA, file))
-    
+        os.makedirs(PATH_RESULTADOS_VLADISLAVLEVA)    
     entrenar_evaluar_modelo(iteraciones,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,PATH_RESULTADOS_VLADISLAVLEVA,funciones_vladislavleva,"vladislavleva")
 
 def main():
     print("Generar datos o cargar datos existentes?")
     print("1. Generar datos")
     print("2. Cargar datos existentes")
+    print("3. Concatenar resultados de ejecuciones independientes")
     opcion = int(input("Ingrese la opción: "))
     if opcion == 1:
         print("Cargar datos existentes")
@@ -252,16 +272,46 @@ def main():
         opcion = int(input("Ingrese la opción: "))
         if opcion == 1:
             feynman_train_test()
-            summary(PATH_RESULTADOS_FEYNMAN)
         elif opcion == 2:
             ferreira_train_test()
-            summary(PATH_RESULTADOS_FERREIRA)
         elif opcion == 3:
             vladislavleva_train_test()
-            summary(PATH_RESULTADOS_VLADISLAVLEVA)
         else:
             print("Opción inválida")
             return
+    elif opcion == 3:
+        print("Seleccione el dataset a concatenar:")
+        print("1. Feynman")
+        print("2. Ferreira")
+        print("3. Vladislavleva")
+        opcion = int(input("Ingrese la opción: "))
+        path = ""
+        prefix = ""
+        if opcion == 1:
+            path = PATH_RESULTADOS_FEYNMAN
+            prefix = "feynman"
+        elif opcion == 2:
+            path =  PATH_RESULTADOS_FERREIRA
+            prefix = "Ferreira"
+        elif opcion == 3:
+            path =  PATH_RESULTADOS_VLADISLAVLEVA
+            prefix = "vladislavleva"
+        else :
+            print("Opción inválida")
+            return 
+        # obtener la ultima carpeta creada
+        lista_carpetas = os.listdir(path)
+        lista_carpetas = [x for x in lista_carpetas if x.isdigit()]
+        lista_carpetas.sort()
+        if len(lista_carpetas) == 0:
+            print("No hay carpetas en el directorio")
+            return
+        # como estan creadas por timestamp, la ultima es la mas reciente
+        # y esta tiene el mayor valor, por eso se toma el ultimo elemento (lista_carpetas[-1])
+        path = os.path.join(path,lista_carpetas[-1])
+        print("Creando archivo concatenated.csv en la carpeta ",path) 
+        combine_csv_files(path,prefix)
+
     else:
         print("Opción inválida")
 
