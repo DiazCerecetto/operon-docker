@@ -53,6 +53,23 @@ def obtener_funcion(f):
     funcion = funcion.strip()
     return funcion
 
+# Ejemplos:
+# obtener_numero_funcion_archivo("resultados_feynmann_1.csv") -> 1
+# obtener_numero_funcion_archivo("resultados_feynmann15.csv") -> 15
+# obtener_numero_funcion_archivo("resultados_Vladislavleva2.csv") -> 2
+def obtener_numero_funcion_archivo(nombre_archivo):
+    # Obtener el número que viene antes de .csv
+    # Contemplar el caso en que el número sea de más de un dígito
+    numero = ""
+    for c in nombre_archivo:
+        try:
+            int(c)
+            numero += c
+        except:
+            pass
+    return int(numero)
+
+
 def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, lista_funciones, nombre, lista_admitidos=None):
     print("****************************")
     print(f"*** Operon {nombre} ***")
@@ -67,86 +84,99 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
     tiempo_inicio = time.time()
     tiempos_iteraciones = []
     tiempo_total = 0
-    for iter in range(iteraciones):
-        tiempo_iteracion = time.time()
-        resultados = os.path.join(path_resultados, f"resultados_{nombre}{iter}.csv")
-        predicciones = []
-        maximo = len(os.listdir(path_train))
-        i = 0
-        for file in os.listdir(path_train):
-            # Si el numero  + 1 que viene al final del archivo, justo antes de .csv
-            # está en la lista de admitidos, se carga el archivo
-            # ejemplo: resultados_feynmann_1.csv, resultados_feynmann_2.csv, resultados_Vladislavleva3.csv
-            # Solo se cargan los archivos que tengan un número en la lista de admitidos si es que esta no es None
-            # obtener el ultimo caracter:
-            
-            if lista_admitidos is not None:
-                if file.endswith(".csv") and int(file.split(".")[0][-1]) in lista_admitidos:
-                    print("Cargando archivo ", int(file.split(".")[0][-1]))
-                    df = pd.read_csv(os.path.join(path_train, file))
-                    est = obtener_modelo(iter)
-                    est, m = entrenar_desde_csv(est, df)
-                    
-                    predicciones.append(est)
-                    sys.stdout.write("\033[F")
-                    print("Iteración: ", str(iter+1), " de ", iteraciones, " || ", i+1, " de ", maximo, " funciones")
-                    i += 1
-            else:
-                if file.endswith(".csv"):
-                    df = pd.read_csv(os.path.join(path_train, file))
-                    est = obtener_modelo(iter)
-                    est, m = entrenar_desde_csv(est, df)
-                    
-                    predicciones.append(est)
-
-                    sys.stdout.write("\033[F")
-                    print("Iteración: ", str(iter+1), " de ", iteraciones, " || ", i+1, " de ", maximo, " funciones")
-                    i += 1
-        tiempo_iteracion = time.time() - tiempo_iteracion
-        tiempos_iteraciones.append(tiempo_iteracion)
-        
-        
-        df_salida = pd.DataFrame(columns=["Original", "R2", "Modelo", "RMSE"])
-        for j, f in enumerate(lista_funciones):
-            lista_csvs = os.listdir(path_test)
-            nombre_csv = lista_csvs[j]
-            df = pd.read_csv(os.path.join(path_test, nombre_csv))
-            X = df.iloc[:, :-1].values
-            y = df.iloc[:, -1].values
-            
-            if np.isnan(X).any() or np.isnan(y).any():
-                print("Valores NaN en el archivo ", nombre_csv)
-                continue
-            y_pred = predicciones[j].predict(X)
-            #print type
-            
-            rmse = calcular_rmse(y, y_pred)
-
-            #print("y_pred: ", y_pred)
-            #print("expr: ", simplify_expression(predicciones[j].get_model_string()))
-            #print("\n")
-            
-
-            # Si hay valores NaN en las predicciones, se descarta
-            if np.isnan(y_pred).any():
-                print("Habia nans")
-                df_salida.loc[j] = [obtener_funcion(f), 0, predicciones[j].get_model_string(), np.nan]
-                df_salida.to_csv(resultados, index=False)
-                tiempo_total = time.time() - tiempo_inicio
-                continue
-        
-            r2 = 0
-            try:
-                r2 = predicciones[j].score(X, y)
-            except:
-                r2 = np.nan
     
-            df_salida.loc[j] = [obtener_funcion(f), r2, simplify_expression(predicciones[j].get_model_string()), rmse]
-
+    print("****************************")
+    print(" * Parámetros del modelo: * ")
+    print("****************************")
+    est = obtener_modelo(0)
+    params = est.get_params()
+    
+    for param, value in params.items():
+        print(f"{param}: {value}")
+    print("****************************")
+    print()
+    lista_enteros_funcion_archivo = []
+    for entero in lista_admitidos:
+        # Agregar a un json el entero y la funcion correspondiente
+        funcion = None
+        archivo = None
+        archivo_test = None
+        for f in lista_funciones:
+            if obtener_numero_funcion_archivo(f.__name__) == entero:
+                funcion = f
+        for arch in os.listdir(path_train):
+            if arch.endswith(".csv") and obtener_numero_funcion_archivo(arch) == entero:
+                archivo = arch
+        for archi in os.listdir(path_test):
+            if archi.endswith(".csv") and obtener_numero_funcion_archivo(archi)== entero:
+                archivo_test = archi
+        if funcion is not None and archivo is not None and archivo_test is not None:
+            lista_enteros_funcion_archivo.append({
+                "numero":entero,
+                "funcion":funcion,
+                "archivo":archivo,
+                "archivo_test":archivo_test
+                })
+        else:
+            for f in lista_enteros_funcion_archivo:
+                print("Entero: ", entero)
+                print("Funcion: ", f["funcion"])
+                print("Archivo: ", f["archivo"])
+                print("Archivo test: ", f["archivo_test"])
+            return 0, []
+    cantidad_funciones = len(lista_enteros_funcion_archivo)
+    cantidad_actual = 0
+    for objetoJson in lista_enteros_funcion_archivo:
+        cantidad_actual += 1
+        predicciones = []
+        resultados = os.path.join(path_resultados, f"resultados_{nombre}{objetoJson["numero"]}.csv")
+        lista_filas = []
+        for iter in range(iteraciones):
+            tiempo_iteracion = time.time()
             
-            df_salida.to_csv(resultados, index=False)
-            tiempo_total = time.time() - tiempo_inicio
-    summary(path_resultados)
+            
+            df = pd.read_csv(os.path.join(path_train, objetoJson["archivo"]))
+            est = obtener_modelo(iter)
+            est, m = entrenar_desde_csv(est, df)
+            if "modelo" not in objetoJson or objetoJson["modelo"] is None:
+                objetoJson["modelo"] = [m]
+            else:
+                objetoJson["modelo"].append(m)
+                
+            sys.stdout.write("\033[F")
+            print("Funcion: ", cantidad_actual, " de ", cantidad_funciones, " || ", iter+1, " de ", iteraciones, " iteraciones")
+            tiempo_iteracion = time.time() - tiempo_iteracion
+            tiempos_iteraciones.append(tiempo_iteracion)
+            
+            df_test = pd.read_csv(os.path.join(path_test, objetoJson["archivo_test"]))
+            # imprimir longitud de test
+            X_test = df_test.iloc[:, :-1].values
+            y_test = df_test.iloc[:, -1].values
+            y_pred = est.predict(X_test)
+            predicciones.append(y_pred)
+            
+            # Calcular RMSE
+            rmse = calcular_rmse(y_test, y_pred)
+            r2 = est.score(X_test, y_test)
+            # Guardar los resultados en un archivo
+
+            lista_filas.append({
+                'Original': obtener_funcion(objetoJson["funcion"]),
+                'Modelo': est.get_model_string(),
+                'RMSE': rmse,
+                'R2': r2,
+                'tiempo': tiempo_iteracion,
+            })
+        # ordenar lista_filas por RMSE
+        lista_filas = sorted(lista_filas, key=lambda x: x['RMSE'])
+        
+        
+        df_resultados = pd.DataFrame(lista_filas)
+            
+        # Guardar los resultados en un archivo
+        df_resultados.to_csv(resultados, index=False)
+        # Calcular el tiempo total
+        tiempo_total = time.time() - tiempo_inicio
     return tiempo_total, tiempos_iteraciones
 
 def calcular_rmse(y_true, y_pred):
@@ -242,6 +272,8 @@ def ferreira_train_test():
     # Crear una lista con los enteros de las funciones a cargar, si no se ingresa nada, se carga en None
     lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
     lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
+    if lista_admitidos is None:
+        lista_admitidos = list(range(1, 5))
     entrenar_evaluar_modelo(iteraciones, PATH_FERREIRA_TRAIN, PATH_FERREIRA_TEST, PATH_RESULTADOS_FERREIRA, funciones_ferreira, "Ferreira",lista_admitidos)
     
 def feynman_train_test():
@@ -250,7 +282,12 @@ def feynman_train_test():
         os.makedirs(PATH_RESULTADOS_FEYNMAN)
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     # Medir el tiempo de ejecución
-    tiempo_total, tiempos_iteraciones = entrenar_evaluar_modelo(iteraciones,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,PATH_RESULTADOS_FEYNMAN,funciones_feynman,"feynman")
+    lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
+    lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
+    if lista_admitidos is None:
+        lista_admitidos = list(range(1, 101))
+        
+    tiempo_total, tiempos_iteraciones = entrenar_evaluar_modelo(iteraciones,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,PATH_RESULTADOS_FEYNMAN,funciones_feynman,"feynman",lista_admitidos)
     
     print(f"Tiempo total de ejecución: {tiempo_total}")
     print(f"Tiempo promedio de ejecución: {np.mean(tiempos_iteraciones)}")
@@ -260,7 +297,13 @@ def vladislavleva_train_test():
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     if not os.path.exists(PATH_RESULTADOS_VLADISLAVLEVA):
         os.makedirs(PATH_RESULTADOS_VLADISLAVLEVA)    
-    entrenar_evaluar_modelo(iteraciones,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,PATH_RESULTADOS_VLADISLAVLEVA,funciones_vladislavleva,"vladislavleva")
+    lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
+    lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
+    if lista_admitidos is None:
+        # Lista del 1 al 8
+        lista_admitidos = list(range(1, 9))
+    print("Lista admitidos: ", lista_admitidos)
+    entrenar_evaluar_modelo(iteraciones,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,PATH_RESULTADOS_VLADISLAVLEVA,funciones_vladislavleva,"vladislavleva",lista_admitidos)
 
 def main():
     print("Generar datos o cargar datos existentes?")

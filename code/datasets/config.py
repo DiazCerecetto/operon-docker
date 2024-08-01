@@ -70,7 +70,7 @@ def generar_datos_modelo(cantidad, nombre_directorio, seed, df, lista_funciones,
     for index, row in df.iterrows():
         variables = []
         resultado = []
-        for i in range(0, 11):
+        for i in range(1, 11):
             v_low = row.get(f'v{i}_low', None)
             v_high = row.get(f'v{i}_high', None)
             if pd.isna(v_low) or pd.isna(v_high):
@@ -82,4 +82,4 @@ def generar_datos_modelo(cantidad, nombre_directorio, seed, df, lista_funciones,
         
         df_resultado = pd.DataFrame({f'v{i+1}': variables[i] for i in range(len(variables))})
         df_resultado['resultado'] = resultado
-        df_resultado.to_csv(os.path.join(nombre_directorio, f'{prefix}{index}.csv'), index=False)
+        df_resultado.to_csv(os.path.join(nombre_directorio, f'{prefix}{index+1}.csv'), index=False)
