@@ -159,12 +159,17 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             rmse = calcular_rmse(y_test, y_pred)
             r2 = est.score(X_test, y_test)
             # Guardar los resultados en un archivo
-
+            simplificada = ""
+            try:
+                simplificada = simplify_expression(est.get_model_string())
+            except Exception as e:
+                simplificada = "Error al simplificar " + str(e)
+                
             lista_filas.append({
                 'Numero_iteracion':iter,
                 'Funcion': obtener_funcion(objetoJson["funcion"]),
                 'Original': est.get_model_string(),
-                'Simplificado': simplify_expression(est.get_model_string()),
+                'Simplificado': simplificada,
                 'RMSE': rmse,
                 'R2': r2,
                 'tiempo': tiempo_iteracion,
