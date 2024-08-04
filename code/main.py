@@ -161,8 +161,10 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             # Guardar los resultados en un archivo
 
             lista_filas.append({
-                'Original': obtener_funcion(objetoJson["funcion"]),
-                'Modelo': est.get_model_string(),
+                'Numero_iteracion':iter,
+                'Funcion': obtener_funcion(objetoJson["funcion"]),
+                'Original': est.get_model_string(),
+                'Simplificado': simplify_expression(est.get_model_string()),
                 'RMSE': rmse,
                 'R2': r2,
                 'tiempo': tiempo_iteracion,
@@ -177,6 +179,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
         df_resultados.to_csv(resultados, index=False)
         # Calcular el tiempo total
         tiempo_total = time.time() - tiempo_inicio
+    
     return tiempo_total, tiempos_iteraciones
 
 def calcular_rmse(y_true, y_pred):
@@ -240,6 +243,7 @@ def summary(carpeta_archivos):
     print("Resumen guardado exitosamente en " + carpeta_archivos)
 
 # Para todos los archivos en la carpeta, combina los resultados en un solo archivo
+
 def combine_csv_files(folder_path,prefix):
     
 
@@ -265,46 +269,17 @@ def combine_csv_files(folder_path,prefix):
     summary_df.to_csv(summary_file_path, index=False)
     print(f"Archivo concatenated.csv creado en {folder_path}")
 
-def ferreira_train_test():
+def train_test(path_resultados,path_train,path_test,funciones,prefix,cantidad_funciones):
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
-    # Si la carpeta resultados no existe, crearla
-    os.makedirs(PATH_RESULTADOS_FERREIRA, exist_ok=True)
-    # Crear una lista con los enteros de las funciones a cargar, si no se ingresa nada, se carga en None
+    os.makedirs(path_resultados, exist_ok=True)
     lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
     lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
     if lista_admitidos is None:
-        lista_admitidos = list(range(1, 5))
-    entrenar_evaluar_modelo(iteraciones, PATH_FERREIRA_TRAIN, PATH_FERREIRA_TEST, PATH_RESULTADOS_FERREIRA, funciones_ferreira, "Ferreira",lista_admitidos)
-    
-def feynman_train_test():
-    # si el directorio de resultados no existe, lo creo
-    if not os.path.exists(PATH_RESULTADOS_FEYNMAN):
-        os.makedirs(PATH_RESULTADOS_FEYNMAN)
-    iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
-    # Medir el tiempo de ejecución
-    lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
-    lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
-    if lista_admitidos is None:
-        lista_admitidos = list(range(1, 101))
-        
-    tiempo_total, tiempos_iteraciones = entrenar_evaluar_modelo(iteraciones,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,PATH_RESULTADOS_FEYNMAN,funciones_feynman,"feynman",lista_admitidos)
-    
-    print(f"Tiempo total de ejecución: {tiempo_total}")
-    print(f"Tiempo promedio de ejecución: {np.mean(tiempos_iteraciones)}")
+            lista_admitidos = list(range(1, cantidad_funciones+1))
+    entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, funciones, prefix, lista_admitidos)
     
     
-def vladislavleva_train_test():
-    iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
-    if not os.path.exists(PATH_RESULTADOS_VLADISLAVLEVA):
-        os.makedirs(PATH_RESULTADOS_VLADISLAVLEVA)    
-    lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
-    lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
-    if lista_admitidos is None:
-        # Lista del 1 al 8
-        lista_admitidos = list(range(1, 9))
-    print("Lista admitidos: ", lista_admitidos)
-    entrenar_evaluar_modelo(iteraciones,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,PATH_RESULTADOS_VLADISLAVLEVA,funciones_vladislavleva,"vladislavleva",lista_admitidos)
-
+    
 def main():
     print("Generar datos o cargar datos existentes?")
     print("1. Generar datos")
@@ -334,11 +309,11 @@ def main():
         print("3. Vladislavleva")
         opcion = int(input("Ingrese la opción: "))
         if opcion == 1:
-            feynman_train_test()
+            train_test(PATH_RESULTADOS_FEYNMAN,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,funciones_feynman,"feynman",100)
         elif opcion == 2:
-            ferreira_train_test()
+            train_test(PATH_RESULTADOS_FERREIRA,PATH_FERREIRA_TRAIN,PATH_FERREIRA_TEST,funciones_ferreira,"Ferreira",4)
         elif opcion == 3:
-            vladislavleva_train_test()
+            train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva,"vladislavleva",10)
         else:
             print("Opción inválida")
             return
