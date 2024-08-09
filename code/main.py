@@ -156,8 +156,15 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             predicciones.append(y_pred)
             
             # Calcular RMSE
-            rmse = calcular_rmse(y_test, y_pred)
-            r2 = est.score(X_test, y_test)
+            # Si y_pred contiene nan, no se calcula el RMSE
+            if np.isnan(y_pred).any():
+                rmse = np.nan
+            else:
+                rmse = calcular_rmse(y_test, y_pred)
+            try:
+                r2 = est.score(X_test, y_test)
+            except:
+                r2 = np.nan
             # Guardar los resultados en un archivo
             simplificada = ""
             try:
