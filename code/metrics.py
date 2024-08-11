@@ -1,15 +1,16 @@
 import pandas as pd
 import numpy as np
 import os
-from datasets.config import  PATH_RESULTADOS_VLADISLAVLEVA
+from datasets.config import PATH_RESULTADOS_VLADISLAVLEVA
 # Para cada archivo en el directorio indicado
 path_archivos = PATH_RESULTADOS_VLADISLAVLEVA
 
 # Entrar en la carpeta con el numero mas alto, es decir
 # el ultimo experimento
+print(path_archivos)
 
 path_archivos = os.path.join(path_archivos, str(max([int(x) for x in os.listdir(path_archivos)]))   )
-
+lista_datos = []
 for archivo_csv in os.listdir(path_archivos):
     # Si el archivo no es un CSV, se salta
     if not archivo_csv.endswith('.csv'):
@@ -24,9 +25,11 @@ for archivo_csv in os.listdir(path_archivos):
     data = data[~data['RMSE'].isin([np.nan, np.inf, -np.inf])]
     data = data[~data['R2'].isin([np.nan, np.inf, -np.inf])]
     
+    
     media_rmse = data['RMSE'].mean()
     iqr_rmse = np.percentile(data['RMSE'], 75) - np.percentile(data['RMSE'], 25)
     max_rmse = data['RMSE'].max()
+    promedio_tiempo = data['tiempo'].mean()
 
     #Guardar en un txt
     with open(os.path.join(path_archivos,f"{archivo_csv}_metrics.txt"), 'w') as f:
@@ -34,3 +37,32 @@ for archivo_csv in os.listdir(path_archivos):
         f.write(f'Media: {media_rmse}\n')
         f.write(f'IQR: {iqr_rmse}\n')
         f.write(f'Máximo: {max_rmse}\n') 
+        f.write(f'Tiempo promedio: {promedio_tiempo}\n')
+    # leer datasets\Feynman\FeynmanEquations.csv y funcion_feynman es 
+    # la ecuacion de la columna Filename
+    #feynman_source = pd.read_csv(os.path.join(PATH_FEYNMAN, 'FeynmanEquations.csv'))
+    # obtener numero de resultados_feynman{numero}.csv
+    #numero = archivo_csv.split('feynman')[1].split('.')[0]
+    #numero = int(numero)
+    # aqui se tiene feynman{numero}
+    #
+    #funcion_feynman = feynman_source.iloc[numero-1]['Filename']
+    funcion_feynman = archivo_csv.split('vladislavleva')[1].split('.')[0]
+    lista_datos.append([archivo_csv,funcion_feynman, media_rmse, iqr_rmse, max_rmse, promedio_tiempo])
+    
+    
+        
+    
+# Para cada elemento  en lista_datos, escribir:
+# {funcion_feynman} & & & & &{media_rmse} &{iqr_rmse} &{max_rmse} &{promedio_tiempo} & & & &
+# imprimir los 4 datos en formato 4 decimales con e-00 
+
+    
+# hacer sort de lista_datos por dato[0].split('feynman')[1].split('.')[0]
+lista_datos = sorted(lista_datos, key=lambda x: int(x[0].split('vladislavleva')[1].split('.')[0]))
+
+for dato in lista_datos:
+    print(dato[0])
+    print(dato[1])
+for datos in lista_datos:
+    print(f'{datos[1]} & & & & &{datos[2]:.2e} &{datos[3]:.2e} &{datos[4]:.2e} &{datos[5]:.2e} & & & & \\\\') 
