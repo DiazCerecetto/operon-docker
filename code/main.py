@@ -11,6 +11,7 @@ from datasets.config import PATH_FERREIRA_TRAIN, PATH_FEYNMAN_TRAIN, PATH_RESULT
 from datasets.vladislavleva import lista_funciones as funciones_vladislavleva
 from datasets.ferreira import lista_funciones as funciones_ferreira
 from datasets.feynman import lista_funciones as funciones_feynman
+from sklearn.metrics import r2_score
 PATH_IMAGENES_LATEX = "imagenes_latex"
 
 
@@ -162,7 +163,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             else:
                 rmse = calcular_rmse(y_test, y_pred)
             try:
-                r2 = est.score(X_test, y_test)
+                r2 = r2_score(X_test, y_test)
             except:
                 r2 = np.nan
             # Guardar los resultados en un archivo
@@ -325,7 +326,7 @@ def main():
         elif opcion == 2:
             train_test(PATH_RESULTADOS_FERREIRA,PATH_FERREIRA_TRAIN,PATH_FERREIRA_TEST,funciones_ferreira,"Ferreira",4)
         elif opcion == 3:
-            train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva,"vladislavleva",10)
+            train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva,"vladislavleva",8)
         else:
             print("Opción inválida")
             return
@@ -356,11 +357,15 @@ def main():
         if len(lista_carpetas) == 0:
             print("No hay carpetas en el directorio")
             return
+        
         # como estan creadas por timestamp, la ultima es la mas reciente
         # y esta tiene el mayor valor, por eso se toma el ultimo elemento (lista_carpetas[-1])
         path = os.path.join(path,lista_carpetas[-1])
-        print("Creando archivo concatenated.csv en la carpeta ",path) 
-        combine_csv_files(path,prefix)
+        try:
+            print("Creando archivo concatenated.csv en la carpeta ",path) 
+            combine_csv_files(path,prefix)
+        except Exception as e:
+            print("Error al concatenar los archivos: ",e)
 
     else:
         print("Opción inválida")
