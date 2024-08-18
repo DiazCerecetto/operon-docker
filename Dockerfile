@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:latest
+FROM continuumio/miniconda3
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
@@ -19,8 +19,7 @@ RUN pip install --upgrade pip
 
 RUN ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
 
-COPY environment.yml /tmp/environment.yml
-RUN conda env create -f /tmp/environment.yml
+RUN conda env create -f /home/app/environment.yml
 SHELL ["/bin/bash", "-c"]
 
 

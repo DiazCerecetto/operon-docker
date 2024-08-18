@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sympy import preview, sympify
 from operon.sklearn import SymbolicRegressor # type: ignore
-from datasets.config import PATH_FERREIRA_TRAIN, PATH_FEYNMAN_TRAIN, PATH_RESULTADOS_FEYNMAN, PATH_RESULTADOS_FERREIRA, PATH_RESULTADOS_VLADISLAVLEVA, PATH_FEYNMAN, PATH_FEYNMAN_TEST, PATH_FERREIRA, PATH_FERREIRA_TEST, PATH_VLADISLAVLEVA, PATH_VLADISLAVLEVA_TEST, PATH_VLADISLAVLEVA_TRAIN
+from datasets.config import PATH_FERREIRA_TRAIN, PATH_FEYNMAN_TRAIN, PATH_RESULTADOS_FEYNMAN, PATH_RESULTADOS_FERREIRA, PATH_RESULTADOS_VLADISLAVLEVA, PATH_FEYNMAN_TEST, PATH_FERREIRA_TEST, PATH_VLADISLAVLEVA_TEST, PATH_VLADISLAVLEVA_TRAIN
 from datasets.vladislavleva import lista_funciones as funciones_vladislavleva
 from datasets.ferreira import lista_funciones as funciones_ferreira
 from datasets.feynman import lista_funciones as funciones_feynman
@@ -33,7 +33,7 @@ def obtener_modelo(i):
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
         'n_threads': 5,
-        'objectives':  ['rmse'],
+        'objectives':  ['rmse','undefined_count'],
         'epsilon': 1e-5,
         'random_state' : np.random.default_rng(i),
         'reinserter': 'keep-best',
@@ -196,6 +196,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
     return tiempo_total, tiempos_iteraciones
 
 def calcular_rmse(y_true, y_pred):
+
     # Convertir a ndarray y aplicar redondeo a 4 decimales
     y_true = np.array(y_true).flatten()
     y_pred = np.array(y_pred).flatten()

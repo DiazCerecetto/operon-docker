@@ -91,10 +91,10 @@ popd
 rm -rf robin-hood-hashing
 
 # operon
-git clone  https://github.com/heal-research/operon.git
+#git clone  https://github.com/heal-research/operon.git
 pushd operon
-git switch cpp20
-git checkout 9d7d410e43d18020df25d6311822be8c3680ac56
+#git switch cpp20
+# git checkout 9d7d410e43d18020df25d6311822be8c3680ac56
 mkdir build
 cmake -S . -B build \
     -DCMAKE_BUILD_TYPE=Release \
@@ -107,13 +107,13 @@ cmake -S . -B build \
 cmake --build build -j -t operon_operon -- VERBOSE=1
 cmake --install build
 popd
-rm -rf operon
+#rm -rf operon
 
 ## pyoperon
-git clone  https://github.com/heal-research/pyoperon.git
+#git clone  https://github.com/heal-research/pyoperon.git
 pushd pyoperon
-git switch cpp20
-git checkout e4ef1047240b2df66555ddd54463ab707863aae6
+#git switch cpp20
+#git checkout e4ef1047240b2df66555ddd54463ab707863aae6
 mkdir build
 cmake -S . -B build \
     -DCMAKE_BUILD_TYPE=Release \
@@ -123,4 +123,4 @@ cmake -S . -B build \
 cmake --build build -j -t pyoperon_pyoperon -- VERBOSE=1
 cmake --install build
 popd
-rm -rf pyoperon
+#rm -rf pyoperon

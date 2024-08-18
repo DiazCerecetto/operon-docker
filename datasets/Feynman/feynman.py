@@ -17,7 +17,7 @@ for index, row in benchmarks_df.iterrows():
     # Verificar si el archivo existe
     if os.path.exists(old_filename):
         # Nuevo nombre del archivo
-        new_filename = f'feynmann{index +1}.csv'
+        new_filename = f'feynman{index +1}.csv'
         
         # Renombrar el archivo
         os.rename(old_filename, new_filename)
