@@ -296,27 +296,10 @@ def train_test(path_resultados,path_train,path_test,funciones,prefix,cantidad_fu
     
 def main():
     print("Generar datos o cargar datos existentes?")
-    print("1. Generar datos")
-    print("2. Cargar datos existentes")
-    print("3. Concatenar resultados de ejecuciones independientes")
+    print("1. Cargar datos")
+    print("2. Concatenar resultados de ejecuciones independientes")
     opcion = int(input("Ingrese la opción: "))
     if opcion == 1:
-        print("Cargar datos existentes")
-        print("Seleccione el dataset a utilizar:")
-        print("1. Feynman")
-        print("2. Ferreira")
-        opcion = int(input("Ingrese la opción: "))
-        if opcion == 1:
-            from datasets.feynman import generar_ecuaciones_feynman
-            generar_ecuaciones_feynman()
-            print("Datos cargados exitosamente")
-        elif opcion == 2:
-            from datasets.ferreira import generar_ecuaciones_ferreira
-            generar_ecuaciones_ferreira()
-            print("Datos cargados exitosamente")
-        else:
-            print("Opción inválida")
-    elif opcion == 2:
         print("Seleccione el dataset a utilizar:")
         print("1. Feynman")
         print("2. Ferreira")
@@ -331,7 +314,7 @@ def main():
         else:
             print("Opción inválida")
             return
-    elif opcion == 3:
+    elif opcion == 2:
         print("Seleccione el dataset a concatenar:")
         print("1. Feynman")
         print("2. Ferreira")
