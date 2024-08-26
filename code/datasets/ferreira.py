@@ -24,13 +24,32 @@ def ferreira4(Cain,t):
     return Cain * (-1 * exp(-2 * t) + 8.455 * exp(-5 * t) + 12.3315 * exp(-6 * t) - 20.045 * exp(-5.7 * t) + 0.26)
 lista_funciones = [ferreira1,ferreira2,ferreira3,ferreira4]
 
+def ferreira5(Cain,t):
+    return Cain * (-1 * exp(-2 * t) + 8.455 * exp(-5 * t) + 12.3315 * exp(-6 * t) - 20.045 * exp(-5.7 * t) + 0.26)
+
+def ferreira5(x1):
+    return x1 / (x1 + 3.7)
+
+def ferreira6(x1):
+    return 2 * x1 / (x1 + 3.7)
+
+def ferreira7(x1):
+    return 3 * x1 / (x1 + 3.7)
+
+def ferreira8(x1, x2, x3):
+    return ((x1 / (x1 + 3.7)) * x1 + (2 * x2 / (x2 + 3.7)) * x2 + (3 * x3 / (x3 + 3.7)) * x3) / (x1 + x2 + x3)
+
 ferreira="add,sub,mul,div,exp,constant,variable"
 
 lista_funciones_function_sets = [
     {"funcion":ferreira1, "fset":ferreira},
     {"funcion":ferreira2, "fset":ferreira},
     {"funcion":ferreira3, "fset":ferreira},
-    {"funcion":ferreira4, "fset":ferreira}
+    {"funcion":ferreira4, "fset":ferreira},
+    {"funcion":ferreira5, "fset":ferreira},
+    {"funcion":ferreira6, "fset":ferreira},
+    {"funcion":ferreira7, "fset":ferreira},
+    {"funcion":ferreira8, "fset":ferreira},
 ]
 ########################################################
 ########################################################
