@@ -237,18 +237,12 @@ public:
             auto trainingRange = problem.TrainingRange();
 
 
-            // Buffer para los valores evaluados
             Operon::Vector<Operon::Scalar> buf(trainingRange.Size());
-
-            // Evaluar la expresión del individuo en el rango de entrenamiento
             Interpreter().Evaluate<Operon::Scalar>(ind.Genotype, dataset, trainingRange, buf);
 
-            // Obtener los valores objetivo del dataset
             auto targetValues = dataset.GetValues(problem.TargetVariable()).subspan(trainingRange.Start(), trainingRange.Size());
-
             size_t undefinedCount = 0;
 
-            // Contar los valores indefinidos en la evaluación
             for (size_t i = 0; i < targetValues.size(); ++i) {
                 Operon::Scalar estimatedValue = buf[i];
                 if (std::isnan(estimatedValue) || std::isinf(estimatedValue)) {
