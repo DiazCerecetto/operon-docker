@@ -1,36 +1,32 @@
 
 # Operon - docker
 ## Instalación
-### 1. Crear la imagen:
+### 1. Mediante instalación local
+
+Para instalar localmente, se debe descargar la imagen partiendo de una instalación de miniconda3 y posteriormente instalando el software necesario
 
 ```
-    docker build -t operon .
+    docker pull continuumio/miniconda3 
 ```
 
-### 1. Imágen de Docker Hub
-También es posible descargar la imágen desde Docker Hub, mediante el siguiente comando
-
 ```
-    docker pull diazcerecetto/operon-docker
+    docker run -v C:\Users\admin\Desktop\clone\operon-docker:/home/app -it continuumio/miniconda3 /bin/bash
 ```
 
-### 2. Ejecutar con el volumen apropiado para tener los archivos más cómodamente para programar
 Cambiar "ruta_al_directorio_local" por el path directorio local, la siguiente línea debería imprimir el directorio local (powershell)
 
 ```
     echo $(pwd)
-    docker run -v <ruta_al_directorio_local>/home/app -it operon-docker /bin/bash
+    docker run -v <ruta_al_directorio_local>:/home/app -it continuumio/miniconda3 /bin/bash
 ```
 
-### 3. Luego, en la terminal de docker:
-
-Activar el environment de conda
-
+Luego, instalar las librerías necesarias
 ```
+    cd /home/app
+    bash createdocker.sh
     conda activate operon
 ```
-
-Instalar operon (demora aprox 30-50 minutos). NOTA: Este paso y el siguiente no son necesarios si se instaló la imágen mediante docker pull
+Instalar operon y pyoperon junto con sus dependencias y los cambios de este repositorio
 
 ```
     bash install.sh
@@ -40,13 +36,28 @@ Instalar librerías adicionales
 
 ```
     pip install matplotlib
+    pip install jmetalpy
 ```
 
-Luego, ejecutar un archivo de python
+
+### 1.1 Ejecutar
+Si ya se tiene creado el contenedor con los pasos previos, inicializar el contenedor y ejecutar el siguiente comando:
 
 ```
-    python test_operon.py
+    docker exec -it <id_del_contenedor> /bin/bash
+    cd /home/app
+    conda activate operon
 ```
+
+### 1. Imágen de Docker Hub
+También es posible descargar la imágen desde Docker Hub, mediante el siguiente comando
+
+```
+    docker pull diazcerecetto/operon-docker
+```
+
+Se debe crear un contenedor y utilizar el comando de la sección 1.1
+
 
 ## Réplica del experimento
 
