@@ -24,7 +24,14 @@ def ferreira4(Cain,t):
     return Cain * (-1 * exp(-2 * t) + 8.455 * exp(-5 * t) + 12.3315 * exp(-6 * t) - 20.045 * exp(-5.7 * t) + 0.26)
 lista_funciones = [ferreira1,ferreira2,ferreira3,ferreira4]
 
-    
+ferreira="add,sub,mul,div,exp,constant,variable"
+
+lista_funciones_function_sets = [
+    {"funcion":ferreira1, "fset":ferreira},
+    {"funcion":ferreira2, "fset":ferreira},
+    {"funcion":ferreira3, "fset":ferreira},
+    {"funcion":ferreira4, "fset":ferreira}
+]
 ########################################################
 ########################################################
 ########################################################

@@ -8,9 +8,9 @@ import pandas as pd
 from sympy import preview, sympify
 from operon.sklearn import SymbolicRegressor # type: ignore
 from datasets.config import PATH_FERREIRA_TRAIN, PATH_FEYNMAN_TRAIN, PATH_RESULTADOS_FEYNMAN, PATH_RESULTADOS_FERREIRA, PATH_RESULTADOS_VLADISLAVLEVA, PATH_FEYNMAN_TEST, PATH_FERREIRA_TEST, PATH_VLADISLAVLEVA_TEST, PATH_VLADISLAVLEVA_TRAIN
-from datasets.vladislavleva import lista_funciones as funciones_vladislavleva
-from datasets.ferreira import lista_funciones as funciones_ferreira
-from datasets.feynman import lista_funciones as funciones_feynman
+from datasets.vladislavleva import lista_funciones as funciones_vladislavleva, lista_funciones_function_sets as funciones_vladislavleva_function_sets
+from datasets.ferreira import lista_funciones as funciones_ferreira, lista_funciones_function_sets as funciones_ferreira_function_sets
+from datasets.feynman import lista_funciones as funciones_feynman, lista_funciones_function_sets as funciones_feynman_function_sets
 from sklearn.metrics import r2_score
 PATH_IMAGENES_LATEX = "imagenes_latex"
 
@@ -19,7 +19,12 @@ num_threads = int(os.environ['OMP_NUM_THREADS']) if 'OMP_NUM_THREADS' in os.envi
 
 
 def entrenar_desde_csv(est, df):
-    # Leer el archivo csv y entrenar el modelo    
+    # Leer el archivo csv en maximo 100 valores 
+    # y entrenar el modelo    
+    
+    #X = df.iloc[:, :-1].values
+    #y = df.iloc[:, -1].values
+    
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
     
@@ -27,13 +32,20 @@ def entrenar_desde_csv(est, df):
     m = est.model_
     return est, m
 
-def obtener_modelo(i):
+def obtener_fset_desde_funcion(function,lista_fsets):
+    for i in range(len(lista_fsets)):
+        jsonObj = lista_fsets[i]
+        if jsonObj["funcion"] == function:
+            return jsonObj["fset"]
+    return None
+
+def obtener_modelo(i, function_set=None):
     default_params = {
-        'allowed_symbols':"add,sub,mul,div,square,variable,sin,cos,exp", # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos 
+        'allowed_symbols':function_set, # Vlad-2: add,sub,mul,div,n2,exp,expneg,sin,cos 
         'offspring_generator': 'basic',
         'initialization_method': 'btc',
         'n_threads': 5,
-        'objectives':  ['rmse','undefined_count'],
+        'objectives':  ['rmse'],
         'epsilon': 1e-5,
         'random_state' : np.random.default_rng(i),
         'reinserter': 'keep-best',
@@ -71,7 +83,7 @@ def obtener_numero_funcion_archivo(nombre_archivo):
     return int(numero)
 
 
-def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, lista_funciones, nombre, lista_admitidos=None):
+def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, funciones_fsets, nombre, lista_admitidos=None):
     print("****************************")
     print(f"*** Operon {nombre} ***")
     print("****************************")
@@ -85,44 +97,44 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
     tiempo_inicio = time.time()
     tiempos_iteraciones = []
     tiempo_total = 0
-    
-    print("****************************")
-    print(" * Parámetros del modelo: * ")
-    print("****************************")
-    est = obtener_modelo(0)
-    params = est.get_params()
-    
-    for param, value in params.items():
-        print(f"{param}: {value}")
-    print("****************************")
-    print()
     lista_enteros_funcion_archivo = []
+
+    # Para cada funcion de funciones_fsets en orden, obtener la funcion
+    lista_funciones = []
+    for f in funciones_fsets:
+        lista_funciones.append(f["funcion"])   
+
+
     for entero in lista_admitidos:
         # Agregar a un json el entero y la funcion correspondiente
         funcion = None
+        funcion_set = None
         archivo = None
         archivo_test = None
         for f in lista_funciones:
             if obtener_numero_funcion_archivo(f.__name__) == entero:
                 funcion = f
+                funcion_set = obtener_fset_desde_funcion(f,funciones_fsets)
         for arch in os.listdir(path_train):
             if arch.endswith(".csv") and obtener_numero_funcion_archivo(arch) == entero:
                 archivo = arch
         for archi in os.listdir(path_test):
             if archi.endswith(".csv") and obtener_numero_funcion_archivo(archi)== entero:
                 archivo_test = archi
-        if funcion is not None and archivo is not None and archivo_test is not None:
+        if funcion is not None and archivo is not None and archivo_test is not None and funcion_set is not None:
             lista_enteros_funcion_archivo.append({
                 "numero":entero,
                 "funcion":funcion,
                 "archivo":archivo,
-                "archivo_test":archivo_test
+                "archivo_test":archivo_test,
+                "fset":funcion_set
                 })
         else:
             for f in lista_enteros_funcion_archivo:
                 print("Entero: ", entero)
                 print("Funcion: ", f["funcion"])
                 print("Archivo: ", f["archivo"])
+                print("Funcion_set: ", f["fset"])
                 print("Archivo test: ", f["archivo_test"])
             return 0, []
     cantidad_funciones = len(lista_enteros_funcion_archivo)
@@ -132,12 +144,28 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
         predicciones = []
         resultados = os.path.join(path_resultados, f"resultados_{nombre}{objetoJson["numero"]}.csv")
         lista_filas = []
+        imprimir_modelo = True
         for iter in range(iteraciones):
             tiempo_iteracion = time.time()
             
             
             df = pd.read_csv(os.path.join(path_train, objetoJson["archivo"]))
-            est = obtener_modelo(iter)
+            print("funcion: " + str(objetoJson["funcion"]))
+            est = obtener_modelo(iter, objetoJson["fset"])
+
+            if imprimir_modelo:
+                imprimir_modelo = False
+                print("****************************")
+                print(" * Parámetros del modelo: * ")
+                print("****************************")
+                params = est.get_params()
+                for param, value in params.items():
+                    print(f"{param}: {value}")
+                print("****************************")
+                print()
+            
+
+
             est, m = entrenar_desde_csv(est, df)
             if "modelo" not in objetoJson or objetoJson["modelo"] is None:
                 objetoJson["modelo"] = [m]
@@ -176,7 +204,8 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             lista_filas.append({
                 'Numero_iteracion':iter,
                 'Funcion': obtener_funcion(objetoJson["funcion"]),
-                'Original': est.get_model_string(),
+                'Funcion_set': objetoJson["fset"],
+                'Original': est.get_model_string(), #Parametro precision permite definir la cantidad de decimales
                 'Simplificado': simplificada,
                 'RMSE': rmse,
                 'R2': r2,
@@ -283,14 +312,14 @@ def combine_csv_files(folder_path,prefix):
     summary_df.to_csv(summary_file_path, index=False)
     print(f"Archivo concatenated.csv creado en {folder_path}")
 
-def train_test(path_resultados,path_train,path_test,funciones,prefix,cantidad_funciones):
+def train_test(path_resultados,path_train,path_test,funciones_fsets,prefix,cantidad_funciones):
     iteraciones = int(input("Ingrese la cantidad de ejecuciones independientes: "))
     os.makedirs(path_resultados, exist_ok=True)
     lista_admitidos = input("Ingrese los números de las funciones a cargar separados por comas (ejemplo: 1,2,3) Dejar blanco para cargar todas: ")
     lista_admitidos = [int(x) for x in lista_admitidos.split(",")] if lista_admitidos != "" else None
     if lista_admitidos is None:
             lista_admitidos = list(range(1, cantidad_funciones+1))
-    entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, funciones, prefix, lista_admitidos)
+    entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados, funciones_fsets, prefix, lista_admitidos)
     
     
     
@@ -306,11 +335,13 @@ def main():
         print("3. Vladislavleva")
         opcion = int(input("Ingrese la opción: "))
         if opcion == 1:
-            train_test(PATH_RESULTADOS_FEYNMAN,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,funciones_feynman,"feynman",100)
+            train_test(PATH_RESULTADOS_FEYNMAN,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,funciones_feynman_function_sets,"feynman",100)
         elif opcion == 2:
-            train_test(PATH_RESULTADOS_FERREIRA,PATH_FERREIRA_TRAIN,PATH_FERREIRA_TEST,funciones_ferreira,"Ferreira",4)
+            train_test(PATH_RESULTADOS_FERREIRA,PATH_FERREIRA_TRAIN,PATH_FERREIRA_TEST,funciones_ferreira_function_sets,
+                       "Ferreira",4)
         elif opcion == 3:
-            train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva,"vladislavleva",8)
+            train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva_function_sets
+                       ,"vladislavleva",8)
         else:
             print("Opción inválida")
             return

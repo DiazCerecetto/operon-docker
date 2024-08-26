@@ -253,7 +253,7 @@ public:
                 Operon::Scalar estimatedValue = buf[i];
                 if (std::isnan(estimatedValue) || std::isinf(estimatedValue)) {
                     // print index and expression for debugging
-                    std::cout << "Index: " << i << " Expression: " << ind.Genotype << std::endl;
+                    // std::cout << "Index: " << i << " Expression: " << ind.Genotype << std::endl;
                     ++undefinedCount;
                 }
             }
