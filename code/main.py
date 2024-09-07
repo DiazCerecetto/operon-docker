@@ -338,7 +338,7 @@ def main():
             train_test(PATH_RESULTADOS_FEYNMAN,PATH_FEYNMAN_TRAIN,PATH_FEYNMAN_TEST,funciones_feynman_function_sets,"feynman",100)
         elif opcion == 2:
             train_test(PATH_RESULTADOS_FERREIRA,PATH_FERREIRA_TRAIN,PATH_FERREIRA_TEST,funciones_ferreira_function_sets,
-                       "Ferreira",8)
+                       "Ferreira",16)
         elif opcion == 3:
             train_test(PATH_RESULTADOS_VLADISLAVLEVA,PATH_VLADISLAVLEVA_TRAIN,PATH_VLADISLAVLEVA_TEST,funciones_vladislavleva_function_sets
                        ,"vladislavleva",8)

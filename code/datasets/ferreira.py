@@ -38,6 +38,30 @@ def ferreira7(x1):
 
 def ferreira8(x1, x2, x3):
     return ((x1 / (x1 + 3.7)) * x1 + (2 * x2 / (x2 + 3.7)) * x2 + (3 * x3 / (x3 + 3.7)) * x3) / (x1 + x2 + x3)
+    
+def ferreira9(x1):
+    return x1 / (x1 + 3.7)
+
+def ferreira10(x1):
+    return 2 * x1 / (x1 + 3.7)
+
+def ferreira11(x1,x2):
+    return ((x1/(x1+3.7))*x1/(x1+x2)+(2*x2/(x2+3.7))*x2/(x1+x2))
+
+def ferreira12(x1,x2):
+    return ((x1/(x1+3.7))*x1+(2*x2/(x2+3.7))*x2)/(x1+x2)/(x1+x2+3.7)
+
+def ferreira13(x1):
+    return x1 / (x1 + 3.7)
+
+def ferreira14(x1):
+    return 2 * x1 / (x1 + 3.7)
+
+def ferreira15(x1):
+    return 3 * x1 / (x1 + 3.7)
+
+def ferreira16(x1):
+    return 4*x1/(x1+3.7)  
 
 ferreira="add,sub,mul,div,exp,constant,variable"
 
@@ -50,6 +74,14 @@ lista_funciones_function_sets = [
     {"funcion":ferreira6, "fset":ferreira},
     {"funcion":ferreira7, "fset":ferreira},
     {"funcion":ferreira8, "fset":ferreira},
+    {"funcion":ferreira9, "fset":ferreira},
+    {"funcion":ferreira10, "fset":ferreira},
+    {"funcion":ferreira11, "fset":ferreira},
+    {"funcion":ferreira12, "fset":ferreira},
+    {"funcion":ferreira13, "fset":ferreira},
+    {"funcion":ferreira14, "fset":ferreira},
+    {"funcion":ferreira15, "fset":ferreira},
+    {"funcion":ferreira16, "fset":ferreira}
 ]
 ########################################################
 ########################################################
@@ -68,4 +100,5 @@ def generar_ecuaciones_ferreira():
     generar_datos_modelo(cantidad_train, PATH_FERREIRA_TRAIN, SEED_TRAIN,df, lista_funciones, 'ferreira')
     generar_datos_modelo(cantidad_test, PATH_FERREIRA_TEST, SEED_TEST,df, lista_funciones, 'ferreira')
 
-    print('Listo!')  
+    print('Listo!')
+    
