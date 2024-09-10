@@ -34,9 +34,9 @@ def vladislavleva8(x1, x2):
 
 
 lista_funciones = [vladislavleva1, vladislavleva2, vladislavleva3, vladislavleva4, vladislavleva5, vladislavleva6, vladislavleva7, vladislavleva8] 
-vladislavlevaA = "add,sub,mul,percent,square,constant,variable"
-vladislavlevaB = "add,sub,mul,percent,square,exp,constant,variable"
-vladislavlevaC = "add,sub,mult,percent,square,exp,cos,sin,constant,variable"
+vladislavlevaA = "add,sub,mul,square,constant,variable"
+vladislavlevaB = "add,sub,mul,square,exp,constant,variable"
+vladislavlevaC = "add,sub,mul,square,exp,cos,sin,constant,variable"
 lista_funciones_function_sets = [
     {"funcion":vladislavleva1, "fset":vladislavlevaB},
     {"funcion":vladislavleva2, "fset":vladislavlevaC},
