@@ -12,6 +12,7 @@ from datasets.vladislavleva import lista_funciones as funciones_vladislavleva, l
 from datasets.ferreira import lista_funciones as funciones_ferreira, lista_funciones_function_sets as funciones_ferreira_function_sets
 from datasets.feynman import lista_funciones as funciones_feynman, lista_funciones_function_sets as funciones_feynman_function_sets
 from sklearn.metrics import r2_score
+from sklearn.metrics import root_mean_squared_error
 PATH_IMAGENES_LATEX = "imagenes_latex"
 
 
@@ -150,7 +151,7 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
             
             
             df = pd.read_csv(os.path.join(path_train, objetoJson["archivo"]))
-            print("funcion: " + str(objetoJson["funcion"]))
+            #print("funcion: " + str(objetoJson["funcion"]))
             est = obtener_modelo(iter, objetoJson["fset"])
 
             if imprimir_modelo:
@@ -226,13 +227,17 @@ def entrenar_evaluar_modelo(iteraciones, path_train, path_test, path_resultados,
 
 def calcular_rmse(y_true, y_pred):
 
-    # Convertir a ndarray y aplicar redondeo a 4 decimales
+    # Convertir a ndarray y aplicar redondeo a 8 decimales
     y_true = np.array(y_true).flatten()
     y_pred = np.array(y_pred).flatten()
-    y_true = np.round(y_true, 4)
-    y_pred = np.round(y_pred, 4)
+    y_true = np.round(y_true, 8)
+    y_pred = np.round(y_pred, 8)
     
-    return np.sqrt(np.mean((y_true - y_pred)**2))
+    # En caso de que haya nan o inf en y_pred, se retorna nan
+    if np.isnan(y_pred).any() or np.isinf(y_pred).any():
+        return np.nan
+    else:
+        return root_mean_squared_error(y_true, y_pred)
 
 def python_to_latex(expression_str,nombre="imagen.png"):
     # si el nombre ya existe, agregar un número al final en orden
